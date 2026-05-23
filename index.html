@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEasy Data Analyst Agent — AI Business Intelligence Dashboard</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="A premium live multi-agent e-commerce analytics dashboard powered by Gemini 2.5 Flash. Pastes Google Sheet CSVs and gets real-time strategic business insights.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Style Sheets -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js and dynamic gradient plugin will be loaded dynamically, but prefetching helps -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Ambient Background Glows -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+    
+    <!-- Interactive Background Grid -->
+    <div class="grid-overlay"></div>
+
+    <!-- Active Global Header (Hidden on landing, shown from Step 1 onwards) -->
+    <header class="global-header hidden" id="global-header">
+        <div class="header-branding">
+            <div class="logo-area">
+                <span class="status-dot pulses"></span>
+                <span class="badge-text animate-pulse">Live Analyst Mode</span>
+            </div>
+            <h2 class="header-title gradient-text">ShopEasy Data Analyst Agent</h2>
+        </div>
+        <div class="header-metadata">
+            <div class="meta-item hidden" id="meta-date-range">
+                <span class="meta-label">Range:</span>
+                <span class="meta-value" id="header-date-span">—</span>
+            </div>
+            <div class="meta-item hidden" id="meta-sheet-link">
+                <a href="#" target="_blank" id="header-sheet-url" class="btn-link">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    <span>Source Data</span>
+                </a>
+            </div>
+            <button class="btn btn-secondary btn-icon-only hidden" id="header-refresh-btn" title="Rerun the entire analytics pipeline from scratch">
+                <svg class="icon refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                <span>Refresh</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container" id="main-container">
+        
+        <!-- STEP 1: DATA SOURCE INPUT -->
+        <section class="step-container active-step" id="step-1">
+            <!-- AI Core Visualizer to wow the user on entry -->
+            <div class="ai-core-container">
+                <div class="ai-core-ring ring-1"></div>
+                <div class="ai-core-ring ring-2"></div>
+                <div class="ai-core-sphere"></div>
+                <div class="ai-core-particles">
+                    <span class="particle p1"></span>
+                    <span class="particle p2"></span>
+                    <span class="particle p3"></span>
+                    <span class="particle p4"></span>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <div class="badge">
+                    <span class="status-dot"></span>
+                    <span class="badge-text">Agent Online</span>
+                </div>
+                
+                <h1 class="gradient-text">ShopEasy AI Data Analyst</h1>
+                <p class="subtitle">
+                    Connect your own Google Sheet dataset and let a collaborative network of AI agents parse, aggregate, visualize, and stream strategic actions.
+                </p>
+
+                <!-- Input Forms -->
+                <div class="input-group-vertical">
+                    <div class="field-container">
+                        <label for="gemini-api-key" class="field-label">Gemini API Key</label>
+                        <div class="input-with-icon">
+                            <input type="password" id="gemini-api-key" placeholder="Enter your gemini-2.5-flash API Key..." autocomplete="current-password">
+                            <span class="input-helper-text">Keys are stored locally in your browser. Get one from <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" class="link-inline">Google AI Studio</a>.</span>
+                        </div>
+                    </div>
+
+                    <div class="field-container">
+                        <label for="sheet-url" class="field-label">Google Sheet CSV Publish URL</label>
+                        <input type="url" id="sheet-url" placeholder="https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv">
+                        <span class="input-helper-text">Ensure your sheet is shared or published to web as CSV.</span>
+                    </div>
+
+                    <div class="field-container hidden" id="manual-csv-container" style="transition: all 0.4s ease;">
+                        <label for="manual-csv-data" class="field-label" style="color: var(--color-teal);">Or Paste CSV Raw Data Directly (Fallback)</label>
+                        <textarea id="manual-csv-data" rows="5" placeholder="Order Date,Revenue,Order ID,Delivery Days&#10;23-05-2026,120.50,ORD001,3&#10;24-05-2026,450.00,ORD002,5" style="width: 100%; background-color: rgba(5, 5, 10, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px 16px; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.8rem; resize: vertical; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5); outline: none;"></textarea>
+                        <span class="input-helper-text">If direct fetch fails due to CORS or private sharing, paste your CSV text here and click 'Analyze Data Source' again.</span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" id="btn-fetch-data">
+                        <svg class="spark-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                        <span>Analyze Data Source</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Silently fetched data presentation (hidden initially, shown once parsed) -->
+            <div class="glass-card schema-preview-card hidden" id="schema-preview-container">
+                <div class="card-inner-header">
+                    <h3 class="gradient-text font-bold">Data Ingest Complete</h3>
+                    <p class="card-subtitle" id="ingest-summary-meta">Found 0 rows. Date ranges: N/A</p>
+                </div>
+
+                <!-- Column Type Badges -->
+                <div class="schema-profile-grid" id="schema-profile-grid">
+                    <!-- Column details dynamically rendered -->
+                </div>
+
+                <!-- First 3 rows sample table -->
+                <div class="sample-table-container">
+                    <h4 class="sample-table-title">Sample Records (First 3 Rows)</h4>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="sample-table">
+                            <thead>
+                                <tr id="sample-table-headers"></tr>
+                            </thead>
+                            <tbody id="sample-table-rows"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary btn-success-glow" id="btn-confirm-schema">
+                        <span>Confirm Data is Correct</span>
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2: BUSINESS QUESTIONS INPUT -->
+        <section class="step-container hidden" id="step-2">
+            <div class="glass-card">
+                <div class="badge">
+                    <span class="status-dot"></span>
+                    <span class="badge-text">Visualization Planning</span>
+                </div>
+                
+                <h1 class="gradient-text">What are your goals?</h1>
+                <p class="subtitle">
+                    Enter up to 5 business questions you want answered. Our planning agent will analyze your schema and design customized visualizations.
+                </p>
+
+                <!-- Questions Fields -->
+                <div class="input-group-vertical" id="question-fields-container">
+                    <div class="field-container question-field">
+                        <label for="q-1" class="field-label">Business Question 1 <span class="required">*</span></label>
+                        <input type="text" id="q-1" class="question-input" placeholder="e.g. Which product category drives the highest revenue?">
+                    </div>
+                    <div class="field-container question-field">
+                        <label for="q-2" class="field-label">Business Question 2</label>
+                        <input type="text" id="q-2" class="question-input" placeholder="e.g. What is the monthly trend of order volumes?">
+                    </div>
+                    <div class="field-container question-field">
+                        <label for="q-3" class="field-label">Business Question 3</label>
+                        <input type="text" id="q-3" class="question-input" placeholder="e.g. Is there a correlation between delivery times and shipping costs?">
+                    </div>
+                    <div class="field-container question-field">
+                        <label for="q-4" class="field-label">Business Question 4</label>
+                        <input type="text" id="q-4" class="question-input" placeholder="e.g. How does our average delivery duration compare across different states?">
+                    </div>
+                    <div class="field-container question-field">
+                        <label for="q-5" class="field-label">Business Question 5</label>
+                        <input type="text" id="q-5" class="question-input" placeholder="e.g. What is the breakdown of order sizes by buyer category?">
+                    </div>
+                </div>
+
+                <div class="actions flex-actions">
+                    <button class="btn btn-secondary" id="btn-back-to-step1">
+                        <span>Back</span>
+                    </button>
+                    <button class="btn btn-primary" id="btn-submit-questions">
+                        <svg class="spark-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                        <span>Formulate Recommendations</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3: AI CHART RECOMMENDATIONS -->
+        <section class="step-container hidden" id="step-3">
+            <div class="planning-header text-center">
+                <div class="badge">
+                    <span class="status-dot"></span>
+                    <span class="badge-text">Interactive Planner</span>
+                </div>
+                <h1 class="gradient-text mt-3">Confirm Visual Configurations</h1>
+                <p class="subtitle max-w-xl mx-auto">
+                    The Planning Agent has structured visual mappings to answer your business queries. Verify, edit columns, or swap presentation formats below.
+                </p>
+            </div>
+
+            <!-- Dynamic Recommendation Cards Container -->
+            <div class="recommendations-grid" id="recommendations-cards-container">
+                <!-- Cards injected dynamically here -->
+            </div>
+
+            <div class="actions flex-actions mt-8 justify-center">
+                <button class="btn btn-secondary" id="btn-back-to-step2">
+                    <span>Back</span>
+                </button>
+                <button class="btn btn-primary btn-accent-glow" id="btn-confirm-configs">
+                    <svg class="spark-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span>Execute Operations Pipeline</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 4 & 5: DASHBOARD RENDERS -->
+        <section class="step-container hidden" id="step-4">
+            
+            <!-- Dashboard Workspace Grid Layout -->
+            <div class="dashboard-workspace-grid">
+                
+                <!-- Side Panel: status & console operations log -->
+                <aside class="dashboard-sidebar-column">
+                    <!-- Agent Status Panel -->
+                    <div class="glass-card status-panel-card">
+                        <div class="card-header">
+                            <h4 class="panel-header-title">Collaborative Agent Status</h4>
+                        </div>
+                        <div class="agent-status-rows" id="agent-status-rows">
+                            <!-- Status horizontal strips rendered dynamically -->
+                            <div class="agent-status-strip" id="status-ingestion">
+                                <div class="strip-header">
+                                    <span class="agent-name font-bold">Data Ingest Agent</span>
+                                    <span class="state-badge waiting">Waiting</span>
+                                </div>
+                                <div class="progress-bar-container"><div class="progress-bar"></div></div>
+                            </div>
+                            
+                            <div class="agent-status-strip" id="status-planning">
+                                <div class="strip-header">
+                                    <span class="agent-name font-bold">Visual Planner Agent</span>
+                                    <span class="state-badge waiting">Waiting</span>
+                                </div>
+                                <div class="progress-bar-container"><div class="progress-bar"></div></div>
+                            </div>
+
+                            <div class="agent-status-strip" id="status-kpis">
+                                <div class="strip-header">
+                                    <span class="agent-name font-bold">Analytical KPI Agent</span>
+                                    <span class="state-badge waiting">Waiting</span>
+                                </div>
+                                <div class="progress-bar-container"><div class="progress-bar"></div></div>
+                            </div>
+
+                            <div class="agent-status-strip" id="status-rendering">
+                                <div class="strip-header">
+                                    <span class="agent-name font-bold">Visualization Agent</span>
+                                    <span class="state-badge waiting">Waiting</span>
+                                </div>
+                                <div class="progress-bar-container"><div class="progress-bar"></div></div>
+                            </div>
+
+                            <div class="agent-status-strip" id="status-insights">
+                                <div class="strip-header">
+                                    <span class="agent-name font-bold">Strategic Insight Agent</span>
+                                    <span class="state-badge waiting">Waiting</span>
+                                </div>
+                                <div class="progress-bar-container"><div class="progress-bar"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agent Operations Console (Terminal) -->
+                    <div class="terminal-container console-card">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <span class="t-dot close"></span>
+                                <span class="t-dot minimize"></span>
+                                <span class="t-dot maximize"></span>
+                            </div>
+                            <div class="terminal-title">agent_operations_stream.log</div>
+                        </div>
+                        <div class="terminal-body dashboard-console-body" id="dashboard-console-body">
+                            <div class="line"><span class="cmd">&gt;</span> Bootstrapping client analytical node... <span class="status-success">[READY]</span></div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Core Work Area: Metrics, Charts, Insights -->
+                <article class="dashboard-main-content-column">
+                    
+                    <!-- KPI summary cards -->
+                    <div class="kpi-cards-grid" id="kpi-cards-grid">
+                        <div class="glass-card kpi-card" id="kpi-revenue">
+                            <span class="kpi-label">Total Revenue</span>
+                            <h3 class="kpi-val" id="kpi-val-revenue">$0.00</h3>
+                            <span class="kpi-source-text" id="kpi-src-revenue">Column: —</span>
+                        </div>
+                        
+                        <div class="glass-card kpi-card" id="kpi-orders">
+                            <span class="kpi-label">Total Orders</span>
+                            <h3 class="kpi-val" id="kpi-val-orders">0</h3>
+                            <span class="kpi-source-text" id="kpi-src-orders">Column: —</span>
+                        </div>
+
+                        <div class="glass-card kpi-card" id="kpi-delivery">
+                            <span class="kpi-label">Avg. Delivery Days</span>
+                            <h3 class="kpi-val" id="kpi-val-delivery">0.0 days</h3>
+                            <span class="kpi-source-text" id="kpi-src-delivery">Column: —</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Charts Section -->
+                    <div class="charts-gallery-grid" id="charts-gallery-grid">
+                        <!-- Chart panels will be appended here dynamically -->
+                    </div>
+
+                    <!-- AI Strategic Insights Section -->
+                    <div class="glass-card insights-card" id="insights-section-card">
+                        <div class="insights-card-header">
+                            <div class="badge badge-accent">
+                                <span class="status-dot pulsing-violet"></span>
+                                <span class="badge-text">AI Core Engine</span>
+                            </div>
+                            <h3 class="gradient-text font-bold">Real-time Strategic Insights</h3>
+                            <p class="subtitle mt-1">Actions compiled on-the-fly from the active dataset & visual correlations.</p>
+                        </div>
+                        
+                        <div class="insights-body-container">
+                            <ul class="insights-list" id="insights-stream-list">
+                                <!-- Insight bullets will stream character-by-character here -->
+                                <li class="insight-placeholder-row" id="insight-loader-placeholder">
+                                    <div class="spinner-mini"></div>
+                                    <span class="placeholder-text">Awaiting full visual render sequencing to initialize insights agent...</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="insights-footer">
+                            <span class="seal-icon">⚡</span>
+                            <span class="seal-text">Actionable business points generated directly via Google Gemini 2.5 Flash API</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="global-footer">
+        <p>Built with absolute dedication by Antigravity AI — Collaborating with Google Gemini 2.5 Flash</p>
+    </footer>
+
+    <!-- Main Logic Script -->
+    <script src="script.js"></script>
+</body>
+</html>
